@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:to_do_app/s.dart';
-import 'package:to_do_app/services/sidebar.dart';
 import '../logger.dart';
 import '../network/api.dart';
 import '../network/api_key.dart';
@@ -34,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF7F6F2),
-      drawer: SideBarWidget(),
       body: FutureBuilder<List<Task>>(
         future: _TasksListFuture,
         builder: (context, snapshot) {

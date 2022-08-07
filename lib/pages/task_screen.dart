@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 //import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_app/s.dart';
-import 'package:to_do_app/services/sidebar.dart';
 import 'package:http/http.dart' as http;
 import '../logger.dart';
 import '../model/task.dart';
@@ -57,7 +56,6 @@ class _TaskScreenState extends State<TaskScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        drawer: SideBarWidget(),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
