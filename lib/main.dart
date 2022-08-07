@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'logger.dart';
 import 'error_handler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'model/person.dart';
+import 'model/task.dart';
 import 'network/api.dart';
 import 'network/dio_factory.dart';
 import 's.dart';
@@ -11,7 +11,9 @@ import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:to_do_app/services/sidebar.dart';
-import 'package:to_do_app/pages/task.dart';
+import 'package:to_do_app/pages/task_screen.dart';
+import 'package:to_do_app/pages/home_screen.dart';
+import 'package:to_do_app/pages/test_screen.dart';
 
 void main() {
   runZonedGuarded(() {
@@ -31,8 +33,8 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final _dio = DioFactory.create();
-  late final _api = Api(_dio);
+  //final _dio = DioFactory.create();
+  //late final _api = Api(_dio);
   late Future<List<dynamic>> _PersonsFuture;
   StreamController<int>? _currentBytesReceivedStreamController;
 
@@ -40,19 +42,17 @@ class _AppState extends State<App> {
   var _locale = S.en;
 
   @override
-  void initState() {
+  /*void initState() {
     super.initState();
     _loadItems();
   }
 
   void _loadItems() {
-    logger.info("WTF");
-    print("WTF");
+    logger.info("HelloWorld");
     _currentBytesReceivedStreamController?.close();
     final streamController = StreamController<int>();
-    _PersonsFuture = _api.getPersons(
+    _PersonsFuture = _api.getTasks(
       progressCallback: (current, total) {
-        //total всегда -1, тк этот запрос не возвращает header Content-Length
         streamController.add(current);
       },
     );
@@ -70,7 +70,7 @@ class _AppState extends State<App> {
   void dispose() {
     _dio.close();
     super.dispose();
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -82,9 +82,11 @@ class _AppState extends State<App> {
         ],
         supportedLocales: S.supportedLocales,
         locale: _locale,
-        initialRoute: './task',
+        initialRoute: './home',
         routes: {
-          './task': ((context) => Task())
+          './home': ((context) => HomeScreen()),
+          './test': ((context) => TestScreen()),
+          './task': ((context) => TaskScreen())
         },
-  );
+      );
 }

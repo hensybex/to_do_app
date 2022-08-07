@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:to_do_app/s.dart';
 import 'package:to_do_app/services/sidebar.dart';
+import '../logger.dart';
 import '../network/api_key.dart';
 import '../model/task.dart';
 import 'package:http/http.dart' as http;
@@ -23,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    print("Start fetch");
+    logger.info("Start fetch");
     _TasksFuture = fetchTask();
     _TasksListFuture = getTasks();
   }
@@ -62,16 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: SideBarWidget(),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFFFF),
-      ),
       body: FutureBuilder<List<Task>>(
         future: _TasksListFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            print('wer here');
             final items = snapshot.requireData;
             return SingleChildScrollView(
+              padding: EdgeInsets.only(top: 40),
               physics: ScrollPhysics(),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -91,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
             );
             //return Text(snapshot.data!.text);
           } else if (snapshot.hasError) {
-            print("Or here");
             return Text('${snapshot.error}');
           }
 
@@ -99,6 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
           return const CircularProgressIndicator();
         },
       ),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            //Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+                context, './task', (route) => false);
+          }),
     );
   }
 }
