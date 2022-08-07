@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 //import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
 import 'package:to_do_app/s.dart';
+import 'package:to_do_app/services/sidebar.dart';
 
-class Task extends StatefulWidget {
-  const Task({Key? key}) : super(key: key);
+class TaskScreen extends StatefulWidget {
+  const TaskScreen({Key? key}) : super(key: key);
 
   @override
-  State<Task> createState() => _TaskState();
+  State<TaskScreen> createState() => _TaskScreenState();
 }
 
-class _TaskState extends State<Task> {
+class _TaskScreenState extends State<TaskScreen> {
   dynamic importanceValue = 'Нет';
   final items = ['Нет', 'Низкий', 'Высокий'];
   bool dateState = false;
@@ -39,6 +40,7 @@ class _TaskState extends State<Task> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
+        drawer: SideBarWidget(),
         body: Form(
           key: _formKey,
           child: Column(
