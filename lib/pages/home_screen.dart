@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:to_do_app/s.dart';
 import 'package:to_do_app/services/sidebar.dart';
 import '../logger.dart';
+import '../network/api.dart';
 import '../network/api_key.dart';
 import '../model/task.dart';
 import 'package:http/http.dart' as http;
@@ -24,39 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    logger.info("Start fetch");
-    _TasksFuture = fetchTask();
-    _TasksListFuture = getTasks();
-  }
-
-  Future<List<Task>> getTasks() async {
-    final response = await http.get(
-      Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-      },
-    );
-    List allTasks = jsonDecode(response.body)['list'];
-    return allTasks.map((element) => Task.fromJson(element)).toList();
-  }
-
-  Future<Task> fetchTask() async {
-    final response = await http.get(
-      Uri.parse('https://beta.mrdekk.ru/todobackend/list/0'),
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-      },
-    );
-    if (response.statusCode == 200) {
-      return Task.fromJson(jsonDecode(response.body)['element']);
-    } else {
-      throw Exception('Failed to load album');
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
+    logger.info("Home Screen");
+    _TasksFuture = Api.fetchTask();
+    _TasksListFuture = Api.getTasks();
   }
 
   @override
@@ -97,13 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             );
-            //return Text(snapshot.data!.text);
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
-
-          // By default, show a loading spinner.
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         },
       ),
       floatingActionButton: FloatingActionButton(

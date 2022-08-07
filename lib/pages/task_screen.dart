@@ -8,6 +8,7 @@ import 'package:to_do_app/services/sidebar.dart';
 import 'package:http/http.dart' as http;
 import '../logger.dart';
 import '../model/task.dart';
+import '../network/api.dart';
 import '../network/api_key.dart';
 
 class TaskScreen extends StatefulWidget {
@@ -34,20 +35,7 @@ class _TaskScreenState extends State<TaskScreen> {
   @override
   void initState() {
     super.initState();
-    logger.info('Start fetch');
-    getRevision().then((val) => setState(() {
-          _revision = val;
-        }));
-  }
-
-  Future<String> getRevision() async {
-    final response = await http.get(
-      Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-      },
-    );
-    return (jsonDecode(response.body)['revision']).toString();
+    logger.info('Task Screen');
   }
 
   Future<Null> _selectDate(BuildContext context) async {
@@ -196,37 +184,6 @@ class _TaskScreenState extends State<TaskScreen> {
         ),
       );
 
-  Future<void> postTask(Task task) async {
-    final response = await http.post(
-      Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
-      headers: {
-        'Authorization': 'Bearer $apiKey',
-        'X-Last-Known-Revision': _revision,
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(
-        {
-          'status': 'ok',
-          'element': {
-            'id': task.id,
-            'text': task.text,
-            'importance': task.importance,
-            'done': task.done,
-            'created_at': task.created_at,
-            'changed_at': task.changed_at,
-            'last_updated_by': task.last_updated_by,
-          },
-          //'revision': _revision,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print("Success");
-    } else {
-      throw Exception('Failed to create album.');
-    }
-  }
-
   void submit() {
     Task task = Task(
       id: UniqueKey().toString(),
@@ -237,7 +194,7 @@ class _TaskScreenState extends State<TaskScreen> {
       changed_at: DateTime.now().millisecondsSinceEpoch,
       last_updated_by: '1',
     );
-    postTask(task);
+    Api.postTask(task);
     Navigator.pushNamedAndRemoveUntil(context, './home', (route) => false);
   }
 }
