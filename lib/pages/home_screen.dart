@@ -62,29 +62,39 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF7F6F2),
       drawer: SideBarWidget(),
       body: FutureBuilder<List<Task>>(
         future: _TasksListFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final items = snapshot.requireData;
-            return SingleChildScrollView(
-              padding: EdgeInsets.only(top: 40),
-              physics: ScrollPhysics(),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text('Hello'),
-                  ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: items.length,
-                    itemBuilder: (context, i) {
-                      final item = items[i];
-                      return ListTile(title: Text(item.text));
-                    },
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(5, 20, 5, 0),
+              child: Card(
+                color: Color(0xFFFFFFFF),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(top: 40),
+                  physics: ScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        'Мои дела',
+                        style: TextStyle(fontSize: 32),
+                      ),
+                      ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        itemBuilder: (context, i) {
+                          final item = items[i];
+                          return ListTile(title: Text(item.text));
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             );
             //return Text(snapshot.data!.text);

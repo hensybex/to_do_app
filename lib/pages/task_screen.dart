@@ -28,6 +28,7 @@ class _TaskScreenState extends State<TaskScreen> {
   DateTime selectedDate = DateTime.now();
   DateTime? gameDateTime;
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateTextController = TextEditingController();
   final TextEditingController _textController = TextEditingController();
 
   @override
@@ -60,6 +61,8 @@ class _TaskScreenState extends State<TaskScreen> {
       setState(() {
         selectedDate = picked;
         _dateController.text = DateFormat.yMd().format(selectedDate);
+        _dateTextController.text =
+            DateFormat.yMMMMd('ru').format(selectedDate).toString();
       });
     }
   }
@@ -80,7 +83,12 @@ class _TaskScreenState extends State<TaskScreen> {
                 submit();
                 //Navigator.pop(context);
               },
-              child: Text('Сохранить'),
+              child: Container(
+                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                child: Text(
+                  'СОХРАНИТЬ',
+                ),
+              ),
             ),
             Form(
               key: _formKey,
@@ -88,53 +96,77 @@ class _TaskScreenState extends State<TaskScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(
-                    child: TextField(
-                      minLines: 5,
-                      controller: _textController,
-                      decoration: const InputDecoration(
-                        hintText: 'Что надо сделать...',
+                  Container(
+                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
                       ),
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
+                      child: TextField(
+                        style: TextStyle(fontSize: 20),
+                        minLines: 5,
+                        controller: _textController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          hintText: 'Что надо сделать...',
+                        ),
+                        maxLines: null,
+                        keyboardType: TextInputType.multiline,
+                      ),
                     ),
                   ),
                   const SizedBox(
                     height: 16,
                   ),
-                  Text('Важность',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  DropdownButton(
-                      icon: Visibility(
-                          visible: false, child: Icon(Icons.arrow_downward)),
-                      value: importanceValue,
-                      items: items
-                          .map(
-                            (dynamic value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(
-                                value,
+                  Container(
+                    padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
+                    child: Text('Важность',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
+                    child: DropdownButton(
+                        icon: Visibility(
+                            visible: false, child: Icon(Icons.arrow_downward)),
+                        value: importanceValue,
+                        items: items
+                            .map(
+                              (dynamic value) => DropdownMenuItem(
+                                value: value,
+                                child: Text(
+                                  value,
+                                ),
                               ),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (newMenu) {
-                        setState(() {
-                          importanceValue = newMenu;
-                        });
-                      }),
+                            )
+                            .toList(),
+                        onChanged: (newMenu) {
+                          setState(() {
+                            importanceValue = newMenu;
+                          });
+                        }),
+                  ),
                   Stack(
                     children: [
                       Positioned(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Сделать до'),
-                            Opacity(
-                              opacity: _dateState ? 0 : 1,
-                              child: TextField(
-                                controller: _dateController,
-                                enabled: false,
+                            Container(
+                              padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
+                              child: Text('Сделать до'),
+                            ),
+                            Container(
+                              padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
+                              child: Opacity(
+                                opacity: _dateState ? 1 : 0,
+                                child: TextField(
+                                  controller: _dateTextController,
+                                  enabled: false,
+                                ),
                               ),
                             ),
                           ],
