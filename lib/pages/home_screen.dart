@@ -25,60 +25,48 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     logger.info("Home Screen");
-    _TasksFuture = Api.fetchTask();
     _TasksListFuture = Api.getTasks();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF7F6F2),
       body: FutureBuilder<List<Task>>(
-        future: _TasksListFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final items = snapshot.requireData;
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(5, 20, 5, 0),
-              child: Card(
-                color: Color(0xFFFFFFFF),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 40),
-                  physics: ScrollPhysics(),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(
-                        'Мои дела',
-                        style: TextStyle(fontSize: 32),
-                      ),
-                      ListView.builder(
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: items.length,
-                        itemBuilder: (context, i) {
-                          final item = items[i];
-                          return ListTile(title: Text(item.text));
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            //Navigator.pop(context);
-            Navigator.pushNamedAndRemoveUntil(
-                context, './task', (route) => false);
+          future: _TasksListFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData)
+              return scrollMenu(context, snapshot.requireData);
+            else
+              return Text("Snapshot error");
           }),
+    );
+  }
+
+  Widget eventCard(Task task) {
+    return Row(
+      children: [
+        Flexible(flex: 1, child: Icon(Icons.abc)),
+        Flexible(flex: 8, child: ListTile(title: Text(task.text))),
+        Flexible(flex: 1, child: Icon(Icons.abc)),
+      ],
+    );
+  }
+
+  Widget scrollMenu(BuildContext context, List<Task> tasks) {
+    return CustomScrollView(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: false,
+      slivers: [
+        SliverPadding(
+          padding: EdgeInsets.symmetric(vertical: 24.0),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => eventCard(tasks[index]),
+            childCount: tasks.length,
+          ),
+        )
+      ],
     );
   }
 }
