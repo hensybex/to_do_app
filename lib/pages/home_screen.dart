@@ -39,6 +39,13 @@ class _HomeScreenState extends State<HomeScreen> {
             else
               return Text("Snapshot error");
           }),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            //Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+                context, './task', (route) => false);
+          }),
     );
   }
 
