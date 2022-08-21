@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 
 import 'api_key.dart';
 
-class Api {
-  static Future<List<Task>> getTasks() async {
+class TaskProvider {
+  Future<List<Task>> getTasks() async {
     final response = await http.get(
       Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
       headers: {
@@ -18,7 +18,7 @@ class Api {
     return allTasks.map((element) => Task.fromJson(element)).toList();
   }
 
-  static Future<Task> fetchTask() async {
+  Future<Task> fetchTask() async {
     final response = await http.get(
       Uri.parse('https://beta.mrdekk.ru/todobackend/list/0'),
       headers: {
@@ -42,7 +42,24 @@ class Api {
     return (jsonDecode(response.body)['revision']).toString();
   }
 
-  static Future<void> postTask(Task task) async {
+  Future<void> deleteTask(String id) async {
+    String _revision = await getRevision();
+
+    final response = await http.delete(
+      Uri.parse('https://beta.mrdekk.ru/todobackend/list/$id'),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'X-Last-Known-Revision': _revision,
+      },
+    );
+    if (response.statusCode == 200) {
+      logger.info("Task successfully deleted!");
+    } else {
+      throw Exception('Smth went wrong');
+    }
+  }
+
+  Future<void> postTask(Task task) async {
     String _revision = await getRevision();
 
     //getRevision().then((val) => {_revision = val});

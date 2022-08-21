@@ -7,7 +7,7 @@ import 'package:to_do_app/s.dart';
 import 'package:http/http.dart' as http;
 import '../logger.dart';
 import '../model/task.dart';
-import '../network/api.dart';
+import '../network/task_provider.dart';
 import '../network/api_key.dart';
 
 class TaskScreen extends StatefulWidget {
@@ -192,7 +192,7 @@ class _TaskScreenState extends State<TaskScreen> {
       changed_at: DateTime.now().millisecondsSinceEpoch,
       last_updated_by: '1',
     );
-    Api.postTask(task);
+    //TaskProvider.postTask(task);
     Navigator.pushNamedAndRemoveUntil(context, './home', (route) => false);
   }
 }

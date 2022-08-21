@@ -22,8 +22,10 @@ Task _$TaskFromJson(Map<String, dynamic> json) {
 mixin _$Task {
   String get id => throw _privateConstructorUsedError;
   String get text => throw _privateConstructorUsedError;
-  String get importance => throw _privateConstructorUsedError; //int? deadline,
-  bool get done => throw _privateConstructorUsedError; //String? color,
+  String get importance => throw _privateConstructorUsedError;
+  int? get deadline => throw _privateConstructorUsedError;
+  bool get done => throw _privateConstructorUsedError;
+  String? get color => throw _privateConstructorUsedError;
   int get created_at => throw _privateConstructorUsedError;
   int get changed_at => throw _privateConstructorUsedError;
   String get last_updated_by => throw _privateConstructorUsedError;
@@ -41,7 +43,9 @@ abstract class $TaskCopyWith<$Res> {
       {String id,
       String text,
       String importance,
+      int? deadline,
       bool done,
+      String? color,
       int created_at,
       int changed_at,
       String last_updated_by});
@@ -60,7 +64,9 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
     Object? id = freezed,
     Object? text = freezed,
     Object? importance = freezed,
+    Object? deadline = freezed,
     Object? done = freezed,
+    Object? color = freezed,
     Object? created_at = freezed,
     Object? changed_at = freezed,
     Object? last_updated_by = freezed,
@@ -78,10 +84,18 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _value.importance
           : importance // ignore: cast_nullable_to_non_nullable
               as String,
+      deadline: deadline == freezed
+          ? _value.deadline
+          : deadline // ignore: cast_nullable_to_non_nullable
+              as int?,
       done: done == freezed
           ? _value.done
           : done // ignore: cast_nullable_to_non_nullable
               as bool,
+      color: color == freezed
+          ? _value.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as String?,
       created_at: created_at == freezed
           ? _value.created_at
           : created_at // ignore: cast_nullable_to_non_nullable
@@ -107,7 +121,9 @@ abstract class _$$_TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       {String id,
       String text,
       String importance,
+      int? deadline,
       bool done,
+      String? color,
       int created_at,
       int changed_at,
       String last_updated_by});
@@ -127,7 +143,9 @@ class __$$_TaskCopyWithImpl<$Res> extends _$TaskCopyWithImpl<$Res>
     Object? id = freezed,
     Object? text = freezed,
     Object? importance = freezed,
+    Object? deadline = freezed,
     Object? done = freezed,
+    Object? color = freezed,
     Object? created_at = freezed,
     Object? changed_at = freezed,
     Object? last_updated_by = freezed,
@@ -145,10 +163,18 @@ class __$$_TaskCopyWithImpl<$Res> extends _$TaskCopyWithImpl<$Res>
           ? _value.importance
           : importance // ignore: cast_nullable_to_non_nullable
               as String,
+      deadline: deadline == freezed
+          ? _value.deadline
+          : deadline // ignore: cast_nullable_to_non_nullable
+              as int?,
       done: done == freezed
           ? _value.done
           : done // ignore: cast_nullable_to_non_nullable
               as bool,
+      color: color == freezed
+          ? _value.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as String?,
       created_at: created_at == freezed
           ? _value.created_at
           : created_at // ignore: cast_nullable_to_non_nullable
@@ -172,7 +198,9 @@ class _$_Task implements _Task {
       {required this.id,
       required this.text,
       required this.importance,
+      this.deadline,
       required this.done,
+      this.color,
       required this.created_at,
       required this.changed_at,
       required this.last_updated_by});
@@ -185,10 +213,12 @@ class _$_Task implements _Task {
   final String text;
   @override
   final String importance;
-//int? deadline,
+  @override
+  final int? deadline;
   @override
   final bool done;
-//String? color,
+  @override
+  final String? color;
   @override
   final int created_at;
   @override
@@ -198,7 +228,7 @@ class _$_Task implements _Task {
 
   @override
   String toString() {
-    return 'Task(id: $id, text: $text, importance: $importance, done: $done, created_at: $created_at, changed_at: $changed_at, last_updated_by: $last_updated_by)';
+    return 'Task(id: $id, text: $text, importance: $importance, deadline: $deadline, done: $done, color: $color, created_at: $created_at, changed_at: $changed_at, last_updated_by: $last_updated_by)';
   }
 
   @override
@@ -210,7 +240,9 @@ class _$_Task implements _Task {
             const DeepCollectionEquality().equals(other.text, text) &&
             const DeepCollectionEquality()
                 .equals(other.importance, importance) &&
+            const DeepCollectionEquality().equals(other.deadline, deadline) &&
             const DeepCollectionEquality().equals(other.done, done) &&
+            const DeepCollectionEquality().equals(other.color, color) &&
             const DeepCollectionEquality()
                 .equals(other.created_at, created_at) &&
             const DeepCollectionEquality()
@@ -226,7 +258,9 @@ class _$_Task implements _Task {
       const DeepCollectionEquality().hash(id),
       const DeepCollectionEquality().hash(text),
       const DeepCollectionEquality().hash(importance),
+      const DeepCollectionEquality().hash(deadline),
       const DeepCollectionEquality().hash(done),
+      const DeepCollectionEquality().hash(color),
       const DeepCollectionEquality().hash(created_at),
       const DeepCollectionEquality().hash(changed_at),
       const DeepCollectionEquality().hash(last_updated_by));
@@ -249,7 +283,9 @@ abstract class _Task implements Task {
       {required final String id,
       required final String text,
       required final String importance,
+      final int? deadline,
       required final bool done,
+      final String? color,
       required final int created_at,
       required final int changed_at,
       required final String last_updated_by}) = _$_Task;
@@ -262,9 +298,13 @@ abstract class _Task implements Task {
   String get text;
   @override
   String get importance;
-  @override //int? deadline,
+  @override
+  int? get deadline;
+  @override
   bool get done;
-  @override //String? color,
+  @override
+  String? get color;
+  @override
   int get created_at;
   @override
   int get changed_at;
