@@ -3,12 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:to_do_app/bloc/tasks_bloc.dart';
-import 'package:to_do_app/bloc/tasks_event.dart';
 import 'package:to_do_app/network/tasks_repositoty.dart';
 import 'dart:async';
 import 'package:to_do_app/s.dart';
-import '../bloc/tasks_bloc.dart';
+import '../bloc/task_bloc.dart';
+import '../bloc/task_event.dart';
 import '../logger.dart';
 import '../network/task_provider.dart';
 import '../network/api_key.dart';
@@ -31,29 +30,18 @@ class HomeScreen extends StatelessWidget {
       create: (context) => TasksRepository(),
       child: BlocProvider(
           create: (context) =>
-              TasksBloc(tasksRepository: context.read<TasksRepository>())
+              TaskBloc(tasksRepository: context.read<TasksRepository>())
                 ..add(TasksLoadEvent()),
-          child: const Scaffold(
+          child: Scaffold(
             body: TasksList(),
+            floatingActionButton: FloatingActionButton(
+                child: Icon(Icons.add),
+                onPressed: () {
+                  //Navigator.pop(context);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, './task', (route) => false);
+                }),
           )),
     );
-  }
-}
-
-String kostya(String id) {
-  logger.info("WTF");
-  logger.info(id);
-  if (id[0] == '#') {
-    logger.info('0');
-    logger.info('%23' + id.substring(1));
-    return ('%23' + id.substring(1));
-  } else if (id[0] == '[') {
-    logger.info('1');
-    logger.info('[%23' + id.substring(2));
-    return ('[%23' + id.substring(2));
-  } else {
-    logger.info('2');
-    logger.info(id);
-    return id;
   }
 }

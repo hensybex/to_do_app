@@ -43,31 +43,34 @@ class TaskProvider {
   }
 
   Future<void> deleteTask(String id) async {
-    String _revision = await getRevision();
+    String revision = await getRevision();
+    logger.info('Started task deletion (api)');
 
     final response = await http.delete(
       Uri.parse('https://beta.mrdekk.ru/todobackend/list/$id'),
       headers: {
         'Authorization': 'Bearer $apiKey',
-        'X-Last-Known-Revision': _revision,
+        'X-Last-Known-Revision': revision,
       },
     );
     if (response.statusCode == 200) {
-      logger.info("Task successfully deleted!");
+      logger.info('Task successfully deleted!');
     } else {
+      logger.info('Smth didnt go well');
+      logger.info(response.statusCode);
       throw Exception('Smth went wrong');
     }
   }
 
-  Future<void> postTask(Task task) async {
-    String _revision = await getRevision();
+  Future<void> editTask(Task task) async {
+    String revision = await getRevision();
 
     //getRevision().then((val) => {_revision = val});
-    final response = await http.post(
-      Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
+    final response = await http.put(
+      Uri.parse('https://beta.mrdekk.ru/todobackend/list/${task.id}'),
       headers: {
         'Authorization': 'Bearer $apiKey',
-        'X-Last-Known-Revision': _revision,
+        'X-Last-Known-Revision': revision,
         'Content-Type': 'application/json',
       },
       body: json.encode(
@@ -81,12 +84,47 @@ class TaskProvider {
             'created_at': task.created_at,
             'changed_at': task.changed_at,
             'last_updated_by': task.last_updated_by,
+            'deadline': task.deadline,
           },
         },
       ),
     );
     if (response.statusCode == 200) {
-      logger.info("Success");
+      logger.info('Success');
+    } else {
+      throw Exception('Failed to create album.');
+    }
+  }
+
+  Future<void> postTask(Task task) async {
+    String revision = await getRevision();
+
+    //getRevision().then((val) => {_revision = val});
+    final response = await http.post(
+      Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'X-Last-Known-Revision': revision,
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(
+        {
+          'status': 'ok',
+          'element': {
+            'id': task.id,
+            'text': task.text,
+            'importance': task.importance,
+            'done': task.done,
+            'created_at': task.created_at,
+            'changed_at': task.changed_at,
+            'last_updated_by': task.last_updated_by,
+            'deadline': task.deadline,
+          },
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      logger.info('Success');
     } else {
       throw Exception('Failed to create album.');
     }

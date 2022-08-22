@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:to_do_app/bloc/tasks_bloc.dart';
-import 'package:to_do_app/bloc/tasks_state.dart';
 import 'package:to_do_app/widgets/task_card.dart';
 
+import '../bloc/task_bloc.dart';
+import '../bloc/tasks_state.dart';
 import '../logger.dart';
 import '../model/task.dart';
 
@@ -13,9 +13,8 @@ class TasksList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<TasksBloc, TasksState>(
+    return BlocConsumer<TaskBloc, TasksState>(
       listener: ((context, state) {
-        logger.info(state.toString());
         if (state is TasksLoadedState) {
           ScaffoldMessenger.of(context)
               .showSnackBar(const SnackBar(content: Text('Tasks loaded')));
