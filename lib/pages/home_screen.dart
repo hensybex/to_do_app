@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:to_do_app/network/tasks_repositoty.dart';
 import 'dart:async';
 import 'package:to_do_app/s.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_event.dart';
+import '../bloc/tasks_state.dart';
 import '../logger.dart';
 import '../network/task_provider.dart';
 import '../network/api_key.dart';
@@ -26,22 +28,49 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => TasksRepository(),
-      child: BlocProvider(
-          create: (context) =>
-              TaskBloc(tasksRepository: context.read<TasksRepository>())
-                ..add(TasksLoadEvent()),
-          child: Scaffold(
-            body: TasksList(),
-            floatingActionButton: FloatingActionButton(
-                child: Icon(Icons.add),
-                onPressed: () {
-                  //Navigator.pop(context);
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, './task', (route) => false);
-                }),
-          )),
+    final taskBloc = BlocProvider.of<TaskBloc>(context);
+    final box = Hive.box<Task>('ToDos');
+    return Scaffold(
+      body: CustomScrollView(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: false,
+        slivers: [
+          const SliverAppBar(
+            collapsedHeight: 100,
+            expandedHeight: 200,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text('Мои дела'),
+            ),
+          ),
+          const SliverPadding(
+            padding: EdgeInsets.symmetric(vertical: 24.0),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              ValueListenableBuilder(
+                valueListenable: box.listenable(),
+                builder: (_, Box box, __) {
+                  if (box.values.isEmpty) {
+                    return Center(
+                      child: Text('No todos'),
+                    );
+                  }
+                  return BlocBuilder<TaskBloc, TasksState>(builder: (_, state) {
+                    return TasksList();
+                  });
+                },
+              ),
+            ]),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            //Navigator.pop(context);
+            Navigator.pushNamedAndRemoveUntil(
+                context, './task', (route) => false);
+          }),
     );
   }
 }

@@ -7,11 +7,14 @@ import 'package:to_do_app/bloc/task_bloc.dart';
 import 'package:to_do_app/bloc/tasks_state.dart';
 import 'package:intl/intl.dart';
 import '../bloc/task_event.dart';
+import '../logger.dart';
 import '../model/task.dart';
 
 class TaskCard extends StatefulWidget {
   final Task task;
-  const TaskCard({Key? key, required this.task}) : super(key: key);
+  final int index;
+  const TaskCard({Key? key, required this.task, required this.index})
+      : super(key: key);
 
   @override
   State<TaskCard> createState() => _TaskCardState();
@@ -48,7 +51,9 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.red,
           icon: Icons.delete,
           onPressed: (context) {
-            taskBloc.add(TaskDeleteEvent(kostya(widget.task.id)));
+            logger.info('from task card');
+            logger.info(widget.task.id);
+            taskBloc.add(TaskDeleteEvent(widget.task.id, widget.index));
           },
         ),
       ]),

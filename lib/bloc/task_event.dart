@@ -18,8 +18,9 @@ class TaskDoneEvent extends TaskEvent {
 
 class TaskDeleteEvent extends TaskEvent {
   String id;
+  int index;
 
-  TaskDeleteEvent(this.id);
+  TaskDeleteEvent(this.id, this.index);
 }
 
 class TaskEditEvent extends TaskEvent {

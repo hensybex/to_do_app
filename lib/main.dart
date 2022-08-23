@@ -1,40 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+//import 'package:hive/hive.dart';
 
+import 'bloc/task_bloc.dart';
+import 'bloc/task_event.dart';
 import 'logger.dart';
 import 'error_handler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'network/tasks_repositoty.dart';
 import 's.dart';
 import 'dart:async';
 import 'package:to_do_app/pages/task_screen.dart';
 import 'package:to_do_app/pages/home_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:to_do_app/model/task.dart';
 
 void main() {
-  runZonedGuarded(() {
+  runZonedGuarded(() async {
     initLogger();
     logger.info('Start main');
+    await Hive.initFlutter();
+    Hive.registerAdapter(TaskAdapter());
+    await Hive.openBox<Task>('ToDos');
     ErrorHandler.init();
-    runApp(const App());
+    runApp(App());
     logger.info('End main');
   }, ErrorHandler.recordError);
 }
 
-class App extends StatefulWidget {
-  const App({Key? key}) : super(key: key);
-
-  @override
-  State<App> createState() => _AppState();
-}
-
-class _AppState extends State<App> {
-  late Future<List<dynamic>> _PersonsFuture;
-  StreamController<int>? _currentBytesReceivedStreamController;
-
+class App extends StatelessWidget {
+  //late Future<List<dynamic>> _PersonsFuture;
+  //StreamController<int>? _currentBytesReceivedStreamController;
   var _isDark = false;
   var _locale = S.en;
 
   @override
-  @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => TaskBloc(),
+      child: MaterialApp(
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -48,5 +52,7 @@ class _AppState extends State<App> {
           './home': ((context) => HomeScreen()),
           './task': ((context) => TaskScreen())
         },
-      );
+      ),
+    );
+  }
 }
