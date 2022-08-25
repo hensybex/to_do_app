@@ -20,14 +20,23 @@ Task _$TaskFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Task {
+  @HiveField(0)
   String get id => throw _privateConstructorUsedError;
+  @HiveField(1)
   String get text => throw _privateConstructorUsedError;
+  @HiveField(2)
   String get importance => throw _privateConstructorUsedError;
+  @HiveField(3)
   int? get deadline => throw _privateConstructorUsedError;
+  @HiveField(4)
   bool get done => throw _privateConstructorUsedError;
+  @HiveField(5)
   String? get color => throw _privateConstructorUsedError;
+  @HiveField(6)
   int get created_at => throw _privateConstructorUsedError;
+  @HiveField(7)
   int get changed_at => throw _privateConstructorUsedError;
+  @HiveField(8)
   String get last_updated_by => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,15 +49,15 @@ abstract class $TaskCopyWith<$Res> {
   factory $TaskCopyWith(Task value, $Res Function(Task) then) =
       _$TaskCopyWithImpl<$Res>;
   $Res call(
-      {String id,
-      String text,
-      String importance,
-      int? deadline,
-      bool done,
-      String? color,
-      int created_at,
-      int changed_at,
-      String last_updated_by});
+      {@HiveField(0) String id,
+      @HiveField(1) String text,
+      @HiveField(2) String importance,
+      @HiveField(3) int? deadline,
+      @HiveField(4) bool done,
+      @HiveField(5) String? color,
+      @HiveField(6) int created_at,
+      @HiveField(7) int changed_at,
+      @HiveField(8) String last_updated_by});
 }
 
 /// @nodoc
@@ -118,15 +127,15 @@ abstract class _$$_TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       __$$_TaskCopyWithImpl<$Res>;
   @override
   $Res call(
-      {String id,
-      String text,
-      String importance,
-      int? deadline,
-      bool done,
-      String? color,
-      int created_at,
-      int changed_at,
-      String last_updated_by});
+      {@HiveField(0) String id,
+      @HiveField(1) String text,
+      @HiveField(2) String importance,
+      @HiveField(3) int? deadline,
+      @HiveField(4) bool done,
+      @HiveField(5) String? color,
+      @HiveField(6) int created_at,
+      @HiveField(7) int changed_at,
+      @HiveField(8) String last_updated_by});
 }
 
 /// @nodoc
@@ -195,35 +204,44 @@ class __$$_TaskCopyWithImpl<$Res> extends _$TaskCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_Task implements _Task {
   const _$_Task(
-      {required this.id,
-      required this.text,
-      required this.importance,
-      this.deadline,
-      required this.done,
-      this.color,
-      required this.created_at,
-      required this.changed_at,
-      required this.last_updated_by});
+      {@HiveField(0) required this.id,
+      @HiveField(1) required this.text,
+      @HiveField(2) required this.importance,
+      @HiveField(3) this.deadline,
+      @HiveField(4) required this.done,
+      @HiveField(5) this.color,
+      @HiveField(6) required this.created_at,
+      @HiveField(7) required this.changed_at,
+      @HiveField(8) required this.last_updated_by});
 
   factory _$_Task.fromJson(Map<String, dynamic> json) => _$$_TaskFromJson(json);
 
   @override
+  @HiveField(0)
   final String id;
   @override
+  @HiveField(1)
   final String text;
   @override
+  @HiveField(2)
   final String importance;
   @override
+  @HiveField(3)
   final int? deadline;
   @override
+  @HiveField(4)
   final bool done;
   @override
+  @HiveField(5)
   final String? color;
   @override
+  @HiveField(6)
   final int created_at;
   @override
+  @HiveField(7)
   final int changed_at;
   @override
+  @HiveField(8)
   final String last_updated_by;
 
   @override
@@ -280,35 +298,44 @@ class _$_Task implements _Task {
 
 abstract class _Task implements Task {
   const factory _Task(
-      {required final String id,
-      required final String text,
-      required final String importance,
-      final int? deadline,
-      required final bool done,
-      final String? color,
-      required final int created_at,
-      required final int changed_at,
-      required final String last_updated_by}) = _$_Task;
+      {@HiveField(0) required final String id,
+      @HiveField(1) required final String text,
+      @HiveField(2) required final String importance,
+      @HiveField(3) final int? deadline,
+      @HiveField(4) required final bool done,
+      @HiveField(5) final String? color,
+      @HiveField(6) required final int created_at,
+      @HiveField(7) required final int changed_at,
+      @HiveField(8) required final String last_updated_by}) = _$_Task;
 
   factory _Task.fromJson(Map<String, dynamic> json) = _$_Task.fromJson;
 
   @override
+  @HiveField(0)
   String get id;
   @override
+  @HiveField(1)
   String get text;
   @override
+  @HiveField(2)
   String get importance;
   @override
+  @HiveField(3)
   int? get deadline;
   @override
+  @HiveField(4)
   bool get done;
   @override
+  @HiveField(5)
   String? get color;
   @override
+  @HiveField(6)
   int get created_at;
   @override
+  @HiveField(7)
   int get changed_at;
   @override
+  @HiveField(8)
   String get last_updated_by;
   @override
   @JsonKey(ignore: true)

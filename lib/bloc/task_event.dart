@@ -1,13 +1,40 @@
+import '../model/task.dart';
+
 abstract class TaskEvent {}
 
-class TaskLoadEvent extends TaskEvent {}
+class TasksLoadEvent extends TaskEvent {}
 
-class TaskAddEvent extends TaskEvent {}
+class TaskGetListEvent extends TaskEvent {}
 
-class TaskDoneEvent extends TaskEvent {}
+class TaskGetEvent extends TaskEvent {
+  int index;
 
-class TaskDeleteEvent extends TaskEvent {
-  TaskDeleteEvent(String id);
+  TaskGetEvent(this.index);
 }
 
-class TaskEditEvent extends TaskEvent {}
+class TaskPostEvent extends TaskEvent {
+  Task task;
+
+  TaskPostEvent(this.task);
+}
+
+class TaskDoneEvent extends TaskEvent {
+  Task task;
+  int index;
+
+  TaskDoneEvent(this.task, this.index);
+}
+
+class TaskDeleteEvent extends TaskEvent {
+  Task task;
+  int index;
+
+  TaskDeleteEvent(this.task, this.index);
+}
+
+class TaskEditEvent extends TaskEvent {
+  Task task;
+  int index;
+
+  TaskEditEvent(this.task, this.index);
+}
