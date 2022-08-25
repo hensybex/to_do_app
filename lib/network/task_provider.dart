@@ -6,8 +6,7 @@ import 'package:http/http.dart' as http;
 
 import 'api_key.dart';
 
-class Task
-Provider {
+class TaskProvider {
   Future<List<Task>> getTasks() async {
     final response = await http.get(
       Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
