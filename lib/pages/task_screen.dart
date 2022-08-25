@@ -1,29 +1,36 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do_app/s.dart';
-import 'package:http/http.dart' as http;
+import 'package:to_do_app/network/tasks_repositoty.dart';
+import '../bloc/task_bloc.dart';
+import '../bloc/task_event.dart';
+import '../bloc/tasks_state.dart';
 import '../logger.dart';
 import '../model/task.dart';
-import '../network/api.dart';
-import '../network/api_key.dart';
+import 'package:uuid/uuid.dart';
+
+import '../navigation/nav_cubit.dart';
+import 'edit_cubit/edit_cubit.dart';
 
 class TaskScreen extends StatefulWidget {
-  const TaskScreen({Key? key}) : super(key: key);
+  final Task? task;
 
+  TaskScreen({Key? key, this.task}) : super(key: key);
   @override
-  State<TaskScreen> createState() => _TaskScreenState();
+  State<TaskScreen> createState() {
+    // TODO: implement createState
+    return TaskScreenState();
+  }
 }
 
-class _TaskScreenState extends State<TaskScreen> {
-  late String _revision;
-  late Future<int> _RevisionFuture;
+class TaskScreenState extends State<TaskScreen> {
+  @override
   dynamic importanceValue = 'low';
   final items = ['low', 'basic', 'important'];
   bool _dateState = false;
   bool dateTextState = false;
+  bool isEditing = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
   DateTime? gameDateTime;
@@ -32,11 +39,6 @@ class _TaskScreenState extends State<TaskScreen> {
   final TextEditingController _textController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    logger.info('Task Screen');
-  }
-
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -47,7 +49,7 @@ class _TaskScreenState extends State<TaskScreen> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
-        _dateController.text = DateFormat.yMd().format(selectedDate);
+        _dateController.text = selectedDate.millisecondsSinceEpoch.toString();
         _dateTextController.text =
             DateFormat.yMMMMd('ru').format(selectedDate).toString();
       });
@@ -55,7 +57,18 @@ class _TaskScreenState extends State<TaskScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    logger.info('Task Screen');
+    widget.task != null
+        ? {
+            logger.info(widget.task!.text),
+            isEditing = true,
+            logger.info("Set isEditing to true")
+          }
+        : logger.info('No task');
+    return BlocProvider<EditCubit>(
+      create: (context) => EditCubit(),
+      child: Scaffold(
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -66,8 +79,7 @@ class _TaskScreenState extends State<TaskScreen> {
                     EdgeInsets.only(top: 40)),
               ),
               onPressed: () {
-                submit();
-                //Navigator.pop(context);
+                submit(BlocProvider.of<TaskBloc>(context), context);
               },
               child: Container(
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -77,7 +89,7 @@ class _TaskScreenState extends State<TaskScreen> {
               ),
             ),
             Form(
-              key: _formKey,
+//              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -180,19 +192,25 @@ class _TaskScreenState extends State<TaskScreen> {
             ),
           ],
         ),
-      );
+      ),
+    );
+  }
 
-  void submit() {
+  void submit(TaskBloc taskBloc, context) {
+    logger.info(_dateController.text);
+    logger.info("HELLO");
     Task task = Task(
-      id: UniqueKey().toString(),
+      id: const Uuid().v1(),
       text: _textController.text,
       importance: importanceValue,
       done: false,
       created_at: DateTime.now().millisecondsSinceEpoch,
       changed_at: DateTime.now().millisecondsSinceEpoch,
       last_updated_by: '1',
+      deadline:
+          (_dateController.text != '') ? int.parse(_dateController.text) : null,
     );
-    Api.postTask(task);
-    Navigator.pushNamedAndRemoveUntil(context, './home', (route) => false);
+    taskBloc.add(TaskPostEvent(task));
+    BlocProvider.of<NavCubit>(context).popHome();
   }
 }
