@@ -45,7 +45,10 @@ dev_dependencies:
   linter: ^1.26.0
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
 
+  mockito: ^5.3.0
   json_serializable: ^6.3.1
 
 

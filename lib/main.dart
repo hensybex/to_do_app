@@ -8,7 +8,8 @@ import 'logger.dart';
 import 'error_handler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'navigation/app_navigation.dart';
-import 'network/tasks_repositoty.dart';
+import 'data_processing/hive_repository.dart';
+import 'data_processing/tasks_repositoty.dart';
 import 's.dart';
 import 'dart:async';
 import 'package:to_do_app/pages/task_screen.dart';
@@ -38,15 +39,19 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => TasksRepository(),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (context) => TasksRepository()),
+        RepositoryProvider(create: (context) => HiveRepository()),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(
-            create: (context) =>
-                TaskBloc(tasksRepository: context.read<TasksRepository>())
-                  ..add(TaskGetListEvent()),
+            create: (context) => TaskBloc(
+                tasksRepository: context.read<TasksRepository>(),
+                hiveRepository: context.read<HiveRepository>())
+              ..add(TaskGetListEvent()),
           ),
         ],
         child: MaterialApp(

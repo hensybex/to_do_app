@@ -6,12 +6,15 @@ import 'package:to_do_app/logger.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../model/task.dart';
-import '../network/tasks_repositoty.dart';
+import '../data_processing/hive_repository.dart';
+import '../data_processing/tasks_repositoty.dart';
 
 class TaskBloc extends Bloc<TaskEvent, TasksState> {
   TaskBloc({
     required TasksRepository tasksRepository,
+    required HiveRepository hiveRepository,
   })  : _tasksRepository = tasksRepository,
+        _hiveRepository = hiveRepository,
         super(TasksLoadingState()) {
     //on<TasksLoadEvent>(_loadTasks);
     on<TaskGetListEvent>(_getListTask);
@@ -23,6 +26,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
   }
 
   final TasksRepository _tasksRepository;
+  final HiveRepository _hiveRepository;
   /*Future<void> _loadTasks(TasksLoadEvent event, Emitter<TasksState> emit) async {
     var box = Hive.box<Task>('ToDos');
     var task = TaskLoadEve
@@ -35,9 +39,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
 
   Future<List<dynamic>> _getListTask(
       TaskGetListEvent event, Emitter<TasksState> emit) async {
-    var box = Hive.box<Task>('ToDos');
-    logger.info(box.values);
-    List<dynamic> loadedTasksList = box.values.cast().toList();
+    List<dynamic> loadedTasksList = await _hiveRepository.getListTasks();
     emit(TasksLoadedState(loadedTasks: loadedTasksList));
     return loadedTasksList;
   }
@@ -48,12 +50,11 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         logger.info('wer in task_bloc.dart, deleteTask');
         //logger.info(event.index);
         var connectivityResult = await (Connectivity().checkConnectivity());
-        var box = Hive.box<Task>('ToDos');
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks.add(event.task);
         emit(TasksLoadedState(loadedTasks: newTasks));
-        box.add(event.task);
+        _hiveRepository.postTask(event.task);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info(connectivityResult);
           logger.info(connectivityResult.name);
@@ -72,7 +73,6 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         logger.info('wer in task_bloc.dart, editTask');
         var connectivityResult = await (Connectivity().checkConnectivity());
         //logger.info(event.index);
-        var box = Hive.box<Task>('ToDos');
         var newTask = Task(
           id: event.task.id,
           text: event.task.text,
@@ -88,7 +88,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks[event.index] = newTask;
         emit(TasksLoadedState(loadedTasks: newTasks));
-        box.putAt(event.index, newTask);
+        _hiveRepository.editTask(event.index, newTask);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info('Update after edit');
           await _tasksRepository.updateTasks(newTasks);
@@ -104,14 +104,12 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
     try {
       if (state is TasksLoadedState) {
         logger.info('wer in task_bloc.dart, deleteTask');
-        //logger.info(event.index);
         var connectivityResult = await (Connectivity().checkConnectivity());
-        var box = Hive.box<Task>('ToDos');
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks.remove(event.task);
         emit(TasksLoadedState(loadedTasks: newTasks));
-        box.deleteAt(event.index);
+        _hiveRepository.deleteTask(event.index);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info('Update after delete');
           await _tasksRepository.updateTasks(newTasks);
@@ -132,7 +130,6 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         logger.info('wer in task_bloc.dart, markTaskDone');
         //logger.info(event.index);
         var connectivityResult = await Connectivity().checkConnectivity();
-        var box = Hive.box<Task>('ToDos');
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         var newTask = Task(
@@ -148,7 +145,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         );
         newTasks[event.index] = newTask;
         emit(TasksLoadedState(loadedTasks: newTasks));
-        box.putAt(event.index, newTask);
+        _hiveRepository.editTask(event.index, newTask);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info('Update after done');
           await _tasksRepository.updateTasks(newTasks);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do_app/network/tasks_repositoty.dart';
+import 'package:to_do_app/data_processing/tasks_repositoty.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_event.dart';
 import '../bloc/tasks_state.dart';
@@ -15,8 +15,9 @@ import 'edit_cubit/edit_cubit.dart';
 
 class TaskScreen extends StatefulWidget {
   final Task? task;
+  final int? index;
 
-  TaskScreen({Key? key, this.task}) : super(key: key);
+  TaskScreen({Key? key, this.task, this.index}) : super(key: key);
   @override
   State<TaskScreen> createState() {
     // TODO: implement createState
@@ -57,15 +58,29 @@ class TaskScreenState extends State<TaskScreen> {
   }
 
   @override
+  void initState() {
+    if (widget.task != null) {
+      if (widget.task!.last_updated_by == 'home_screen') {
+        setState(() {
+          isEditing = true;
+          importanceValue = widget.task!.importance;
+          _textController.text = widget.task!.text;
+          if (widget.task!.deadline != null) {
+            selectedDate =
+                DateTime.fromMicrosecondsSinceEpoch(widget.task!.deadline!);
+          }
+          _dateController.text = selectedDate.millisecondsSinceEpoch.toString();
+          _dateTextController.text =
+              DateFormat.yMMMd('ru').format(selectedDate).toString();
+        });
+      }
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     logger.info('Task Screen');
-    widget.task != null
-        ? {
-            logger.info(widget.task!.text),
-            isEditing = true,
-            logger.info("Set isEditing to true")
-          }
-        : logger.info('No task');
     return BlocProvider<EditCubit>(
       create: (context) => EditCubit(),
       child: Scaffold(
@@ -187,6 +202,15 @@ class TaskScreenState extends State<TaskScreen> {
                       )
                     ],
                   ),
+                  isEditing == true
+                      ? IconButton(
+                          onPressed: () {
+                            context.read<TaskBloc>().add(
+                                TaskDeleteEvent(widget.task!, widget.index!));
+                          },
+                          icon: Icon(Icons.abc_outlined),
+                        )
+                      : Opacity(opacity: 0.5, child: Icon(Icons.abc))
                 ],
               ),
             ),

@@ -1,4 +1,4 @@
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +25,7 @@ class _TaskCardState extends State<TaskCard> {
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
-    final TaskBloc taskBloc = context.read<TaskBloc>();
+    //final TaskBloc taskBloc = context.read<TaskBloc>();
     return Slidable(
       startActionPane:
           ActionPane(extentRatio: 0.2, motion: ScrollMotion(), children: [
@@ -33,7 +33,9 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.green,
           icon: Icons.plus_one,
           onPressed: (context) {
-            taskBloc.add(TaskDoneEvent(widget.task, widget.index));
+            context
+                .read<TaskBloc>()
+                .add(TaskDoneEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -43,7 +45,9 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.red,
           icon: Icons.delete,
           onPressed: (context) {
-            taskBloc.add(TaskDeleteEvent(widget.task, widget.index));
+            context
+                .read<TaskBloc>()
+                .add(TaskDeleteEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -63,7 +67,9 @@ class _TaskCardState extends State<TaskCard> {
                 value: widget.task.done,
                 onChanged: (bool? value) {
                   logger.info('am i here');
-                  taskBloc.add(TaskDoneEvent(widget.task, widget.index));
+                  context
+                      .read<TaskBloc>()
+                      .add(TaskDoneEvent(widget.task, widget.index));
                 }),
           ),
           Visibility(
