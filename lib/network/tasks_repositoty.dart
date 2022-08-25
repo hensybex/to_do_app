@@ -20,4 +20,8 @@ class TasksRepository {
   Future<void> editSingleTask(Task task) {
     return _tasksProvider.editTask(task);
   }
+
+  Future<void> updateTasks(List<Task> tasksList) {
+    return _tasksProvider.updateTasks(tasksList);
+  }
 }

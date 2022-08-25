@@ -129,4 +129,35 @@ class TaskProvider {
       throw Exception('Failed to create album.');
     }
   }
+
+  Future<void> updateTasks(List<Task> tasksList) async {
+    try {
+      String revision = await getRevision();
+      logger.info('Started task update (api)');
+
+      final response = await http.patch(
+        Uri.parse('https://beta.mrdekk.ru/todobackend/list/'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'X-Last-Known-Revision': revision,
+        },
+        body: json.encode(
+          {
+            'status': 'ok',
+            'list': tasksList,
+          },
+        ),
+      );
+      if (response.statusCode == 200) {
+        logger.info('Tasks successfully updated!');
+      } else {
+        logger.info('Smth didnt go well');
+        logger.info(response.statusCode);
+        throw Exception('Smth went wrong');
+      }
+    } catch (e) {
+      logger.info(e);
+      throw Exception('and another one');
+    }
+  }
 }

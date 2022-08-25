@@ -15,7 +15,8 @@ import '../network/task_provider.dart';
 import '../network/api_key.dart';
 import '../model/task.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:to_do_app/navigation/nav_cubit.dart';
+import '../widgets/task_card.dart';
 import '../widgets/task_list.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -28,8 +29,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final taskBloc = BlocProvider.of<TaskBloc>(context);
-    final box = Hive.box<Task>('ToDos');
     return Scaffold(
       body: CustomScrollView(
         scrollDirection: Axis.vertical,
@@ -47,17 +46,31 @@ class HomeScreen extends StatelessWidget {
           ),
           SliverList(
             delegate: SliverChildListDelegate([
-              ValueListenableBuilder(
-                valueListenable: box.listenable(),
-                builder: (_, Box box, __) {
-                  if (box.values.isEmpty) {
+              BlocBuilder<TaskBloc, TasksState>(
+                builder: (_, state) {
+                  if (state is TasksLoadedState) {
+                    logger.info("wer in home_screen.dart");
+                    return ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      itemCount: state.loadedTasks.length,
+                      itemBuilder: (_, index) {
+                        //taskBloc.add(TaskGetEvent(index));
+                        Task task = state.loadedTasks[index];
+
+                        return TaskCard(task: task, index: index);
+                      },
+                    );
+                  } else if (state is TasksErrorState) {
                     return Center(
-                      child: Text('No todos'),
+                      child: Text('$state.message'),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
                   }
-                  return BlocBuilder<TaskBloc, TasksState>(builder: (_, state) {
-                    return TasksList();
-                  });
                 },
               ),
             ]),
@@ -65,12 +78,20 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
-            //Navigator.pop(context);
-            Navigator.pushNamedAndRemoveUntil(
-                context, './task', (route) => false);
-          }),
+        child: Icon(Icons.add),
+        onPressed: () {
+          //Navigator.pop(context);
+          //BlocProvider.of<NavCubit>(context).addTask();
+          BlocProvider.of<NavCubit>(context).createTask(Task(
+              id: 'tmp',
+              text: 'tmp',
+              importance: 'low',
+              done: true,
+              created_at: 0,
+              changed_at: 0,
+              last_updated_by: 'home_screen'));
+        },
+      ),
     );
   }
 }

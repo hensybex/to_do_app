@@ -4,6 +4,14 @@ abstract class TaskEvent {}
 
 class TasksLoadEvent extends TaskEvent {}
 
+class TaskGetListEvent extends TaskEvent {}
+
+class TaskGetEvent extends TaskEvent {
+  int index;
+
+  TaskGetEvent(this.index);
+}
+
 class TaskPostEvent extends TaskEvent {
   Task task;
 
@@ -12,19 +20,21 @@ class TaskPostEvent extends TaskEvent {
 
 class TaskDoneEvent extends TaskEvent {
   Task task;
+  int index;
 
-  TaskDoneEvent(this.task);
+  TaskDoneEvent(this.task, this.index);
 }
 
 class TaskDeleteEvent extends TaskEvent {
-  String id;
+  Task task;
   int index;
 
-  TaskDeleteEvent(this.id, this.index);
+  TaskDeleteEvent(this.task, this.index);
 }
 
 class TaskEditEvent extends TaskEvent {
   Task task;
+  int index;
 
-  TaskEditEvent(this.task);
+  TaskEditEvent(this.task, this.index);
 }

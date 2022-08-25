@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../bloc/task_event.dart';
 import '../logger.dart';
 import '../model/task.dart';
+import '../navigation/nav_cubit.dart';
 
 class TaskCard extends StatefulWidget {
   final Task task;
@@ -32,16 +33,7 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.green,
           icon: Icons.plus_one,
           onPressed: (context) {
-            Task newTask = Task(
-              id: widget.task.id,
-              text: widget.task.text,
-              importance: widget.task.importance,
-              done: !widget.task.done,
-              created_at: widget.task.created_at,
-              changed_at: widget.task.changed_at,
-              last_updated_by: widget.task.last_updated_by,
-            );
-            taskBloc.add(TaskEditEvent(newTask));
+            taskBloc.add(TaskDoneEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -51,9 +43,7 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.red,
           icon: Icons.delete,
           onPressed: (context) {
-            logger.info('from task card');
-            logger.info(widget.task.id);
-            taskBloc.add(TaskDeleteEvent(widget.task.id, widget.index));
+            taskBloc.add(TaskDeleteEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -72,16 +62,8 @@ class _TaskCardState extends State<TaskCard> {
                 activeColor: Colors.green,
                 value: widget.task.done,
                 onChanged: (bool? value) {
-                  Task newTask = Task(
-                    id: widget.task.id,
-                    text: widget.task.text,
-                    importance: widget.task.importance,
-                    done: !widget.task.done,
-                    created_at: widget.task.created_at,
-                    changed_at: widget.task.changed_at,
-                    last_updated_by: widget.task.last_updated_by,
-                  );
-                  taskBloc.add(TaskEditEvent(newTask));
+                  logger.info('am i here');
+                  taskBloc.add(TaskDoneEvent(widget.task, widget.index));
                 }),
           ),
           Visibility(
@@ -112,9 +94,14 @@ class _TaskCardState extends State<TaskCard> {
             ),
           ),
           Flexible(
-              flex: 1,
-              child: IconButton(
-                  onPressed: (() => {}), icon: Icon(Icons.info_outline))),
+            flex: 1,
+            child: IconButton(
+              onPressed: () {
+                BlocProvider.of<NavCubit>(context).editTask(widget.task);
+              },
+              icon: Icon(Icons.info_outline),
+            ),
+          ),
         ],
       ),
     );
