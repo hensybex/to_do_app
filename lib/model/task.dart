@@ -17,6 +17,7 @@ class Task with _$Task {
     @HiveField(6) required int created_at,
     @HiveField(7) required int changed_at,
     @HiveField(8) required String last_updated_by,
+    @HiveField(9) int? hiveIndex,
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);

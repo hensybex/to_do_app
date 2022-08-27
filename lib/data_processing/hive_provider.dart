@@ -18,6 +18,7 @@ class HiveProvider {
   Future<List<dynamic>> getListTask() async {
     var box = Hive.box<Task>('ToDos');
     List<dynamic> loadedTasksList = box.values.cast().toList();
+    logger.info(loadedTasksList.length);
     return loadedTasksList;
   }
 

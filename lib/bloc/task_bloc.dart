@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_app/bloc/task_event.dart';
 import 'package:to_do_app/bloc/tasks_state.dart';
 import 'package:to_do_app/logger.dart';
@@ -13,48 +14,53 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
   TaskBloc({
     required TasksRepository tasksRepository,
     required HiveRepository hiveRepository,
+    required SharedPreferences sharedPreferences,
   })  : _tasksRepository = tasksRepository,
         _hiveRepository = hiveRepository,
+        _sharedPreferences = sharedPreferences,
         super(TasksLoadingState()) {
-    //on<TasksLoadEvent>(_loadTasks);
     on<TaskGetListEvent>(_getListTask);
-    on<TaskGetEvent>(_getTask);
     on<TaskDoneEvent>(_markTaskDone);
     on<TaskEditEvent>(_editTask);
     on<TaskPostEvent>(_postTask);
     on<TaskDeleteEvent>(_deleteTask);
+    on<HideDoneEvent>(_hideDone);
   }
-
+  final SharedPreferences _sharedPreferences;
   final TasksRepository _tasksRepository;
   final HiveRepository _hiveRepository;
-  /*Future<void> _loadTasks(TasksLoadEvent event, Emitter<TasksState> emit) async {
-    var box = Hive.box<Task>('ToDos');
-    var task = TaskLoadEve
-  }*/
-  Future<Task?> _getTask(TaskGetEvent event, Emitter<TasksState> emit) async {
-    var box = Hive.box<Task>('ToDos');
-    Task? task = box.getAt(event.index);
-    return task;
-  }
+
+  Future<void> _hideDone(HideDoneEvent event, Emitter<TasksState> emit) async {}
 
   Future<List<dynamic>> _getListTask(
       TaskGetListEvent event, Emitter<TasksState> emit) async {
     List<dynamic> loadedTasksList = await _hiveRepository.getListTasks();
-    emit(TasksLoadedState(loadedTasks: loadedTasksList));
+    int doneTasks =
+        loadedTasksList.where((element) => element.done == true).length;
+    emit(TasksLoadedState(
+      loadedTasks: loadedTasksList,
+      doneTasks: doneTasks,
+      isHidden: _sharedPreferences.getBool('doneHidden')!,
+    ));
     return loadedTasksList;
   }
 
   Future<void> _postTask(TaskPostEvent event, Emitter<TasksState> emit) async {
     try {
       if (state is TasksLoadedState) {
-        logger.info('wer in task_bloc.dart, deleteTask');
-        //logger.info(event.index);
+        logger.info('wer in task_bloc.dart, postTask');
         var connectivityResult = await (Connectivity().checkConnectivity());
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks.add(event.task);
-        emit(TasksLoadedState(loadedTasks: newTasks));
-        _hiveRepository.postTask(event.task);
+        emit(
+          TasksLoadedState(
+              isHidden: _sharedPreferences.getBool('doneHidden')!,
+              loadedTasks: newTasks,
+              doneTasks:
+                  newTasks.where((element) => element.done == true).length),
+        );
+        await _hiveRepository.postTask(event.task);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info(connectivityResult);
           logger.info(connectivityResult.name);
@@ -65,6 +71,35 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
     } catch (e) {
       emit(TasksErrorState());
     }
+  }
+
+  Future<void> _deleteTask(
+      TaskDeleteEvent event, Emitter<TasksState> emit) async {
+    try {
+      if (state is TasksLoadedState) {
+        logger.info('wer in task_bloc.dart, deleteTask');
+        var connectivityResult = await (Connectivity().checkConnectivity());
+        final currentState = state as TasksLoadedState;
+        final List<Task> newTasks = List.from(currentState.loadedTasks);
+        newTasks.remove(event.task);
+        emit(TasksLoadedState(
+            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            loadedTasks: newTasks,
+            doneTasks:
+                newTasks.where((element) => element.done == true).length));
+        await _hiveRepository.deleteTask(event.index);
+        if (connectivityResult != ConnectivityResult.none) {
+          logger.info('Update after delete');
+          await _tasksRepository.updateTasks(newTasks);
+        }
+      }
+    } catch (e) {
+      logger.info(e);
+      emit(TasksErrorState());
+    }
+    //var box = Hive.box<Task>('ToDos');
+    //box.deleteAt(event.index);
+    //_tasksRepository.deleteSingleTask(event.id);
   }
 
   Future<void> _editTask(TaskEditEvent event, Emitter<TasksState> emit) async {
@@ -87,8 +122,12 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks[event.index] = newTask;
-        emit(TasksLoadedState(loadedTasks: newTasks));
-        _hiveRepository.editTask(event.index, newTask);
+        emit(TasksLoadedState(
+            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            loadedTasks: newTasks,
+            doneTasks:
+                newTasks.where((element) => element.done == true).length));
+        await _hiveRepository.editTask(event.index, newTask);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info('Update after edit');
           await _tasksRepository.updateTasks(newTasks);
@@ -97,30 +136,6 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
     } catch (e) {
       emit(TasksErrorState());
     }
-  }
-
-  Future<void> _deleteTask(
-      TaskDeleteEvent event, Emitter<TasksState> emit) async {
-    try {
-      if (state is TasksLoadedState) {
-        logger.info('wer in task_bloc.dart, deleteTask');
-        var connectivityResult = await (Connectivity().checkConnectivity());
-        final currentState = state as TasksLoadedState;
-        final List<Task> newTasks = List.from(currentState.loadedTasks);
-        newTasks.remove(event.task);
-        emit(TasksLoadedState(loadedTasks: newTasks));
-        _hiveRepository.deleteTask(event.index);
-        if (connectivityResult != ConnectivityResult.none) {
-          logger.info('Update after delete');
-          await _tasksRepository.updateTasks(newTasks);
-        }
-      }
-    } catch (e) {
-      emit(TasksErrorState());
-    }
-    //var box = Hive.box<Task>('ToDos');
-    //box.deleteAt(event.index);
-    //_tasksRepository.deleteSingleTask(event.id);
   }
 
   Future<void> _markTaskDone(
@@ -144,8 +159,12 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
           changed_at: DateTime.now().millisecondsSinceEpoch,
         );
         newTasks[event.index] = newTask;
-        emit(TasksLoadedState(loadedTasks: newTasks));
-        _hiveRepository.editTask(event.index, newTask);
+        emit(TasksLoadedState(
+            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            loadedTasks: newTasks,
+            doneTasks:
+                newTasks.where((element) => element.done == true).length));
+        await _hiveRepository.editTask(event.index, newTask);
         if (connectivityResult != ConnectivityResult.none) {
           logger.info('Update after done');
           await _tasksRepository.updateTasks(newTasks);
