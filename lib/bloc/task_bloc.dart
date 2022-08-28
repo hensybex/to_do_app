@@ -1,8 +1,10 @@
+import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_app/bloc/task_event.dart';
 import 'package:to_do_app/bloc/tasks_state.dart';
+import 'package:to_do_app/data_processing/shared_pref.dart';
 import 'package:to_do_app/logger.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -14,38 +16,34 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
   TaskBloc({
     required TasksRepository tasksRepository,
     required HiveRepository hiveRepository,
-    required SharedPreferences sharedPreferences,
   })  : _tasksRepository = tasksRepository,
         _hiveRepository = hiveRepository,
-        _sharedPreferences = sharedPreferences,
         super(TasksLoadingState()) {
     on<TaskGetListEvent>(_getListTask);
     on<TaskDoneEvent>(_markTaskDone);
     on<TaskEditEvent>(_editTask);
     on<TaskPostEvent>(_postTask);
     on<TaskDeleteEvent>(_deleteTask);
-    on<HideDoneEvent>(_hideDone);
   }
-  final SharedPreferences _sharedPreferences;
   final TasksRepository _tasksRepository;
   final HiveRepository _hiveRepository;
 
-  Future<void> _hideDone(HideDoneEvent event, Emitter<TasksState> emit) async {}
-
   Future<List<dynamic>> _getListTask(
       TaskGetListEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Getting list of tasks');
     List<dynamic> loadedTasksList = await _hiveRepository.getListTasks();
     int doneTasks =
         loadedTasksList.where((element) => element.done == true).length;
     emit(TasksLoadedState(
       loadedTasks: loadedTasksList,
       doneTasks: doneTasks,
-      isHidden: _sharedPreferences.getBool('doneHidden')!,
+      isHidden: await SharedPref.getCurrent(),
     ));
     return loadedTasksList;
   }
 
   Future<void> _postTask(TaskPostEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Posting task');
     try {
       if (state is TasksLoadedState) {
         logger.info('wer in task_bloc.dart, postTask');
@@ -55,16 +53,16 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         newTasks.add(event.task);
         emit(
           TasksLoadedState(
-              isHidden: _sharedPreferences.getBool('doneHidden')!,
+              isHidden: await SharedPref.getCurrent(),
               loadedTasks: newTasks,
               doneTasks:
                   newTasks.where((element) => element.done == true).length),
         );
         await _hiveRepository.postTask(event.task);
         if (connectivityResult != ConnectivityResult.none) {
-          logger.info(connectivityResult);
-          logger.info(connectivityResult.name);
-          logger.info('Update after post');
+          //logger.info(connectivityResult);
+          //logger.info(connectivityResult.name);
+          //logger.info('Update after post');
           await _tasksRepository.updateTasks(newTasks);
         }
       }
@@ -75,15 +73,24 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
 
   Future<void> _deleteTask(
       TaskDeleteEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Deleting task');
+    logger.info('Start of task delete');
     try {
       if (state is TasksLoadedState) {
         logger.info('wer in task_bloc.dart, deleteTask');
         var connectivityResult = await (Connectivity().checkConnectivity());
         final currentState = state as TasksLoadedState;
         final List<Task> newTasks = List.from(currentState.loadedTasks);
-        newTasks.remove(event.task);
+        logger.info('Im here');
+        logger.info(newTasks.length);
+        logger.info('Task in hive');
+        logger.info(newTasks.last);
+        logger.info('Task to be deleted');
+        logger.info(event.task);
+        newTasks.removeWhere((item) => item.id == event.task.id);
+        logger.info(newTasks.length);
         emit(TasksLoadedState(
-            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            isHidden: await SharedPref.getCurrent(),
             loadedTasks: newTasks,
             doneTasks:
                 newTasks.where((element) => element.done == true).length));
@@ -103,6 +110,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
   }
 
   Future<void> _editTask(TaskEditEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Editing task');
     try {
       if (state is TasksLoadedState) {
         logger.info('wer in task_bloc.dart, editTask');
@@ -123,7 +131,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         final List<Task> newTasks = List.from(currentState.loadedTasks);
         newTasks[event.index] = newTask;
         emit(TasksLoadedState(
-            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            isHidden: await SharedPref.getCurrent(),
             loadedTasks: newTasks,
             doneTasks:
                 newTasks.where((element) => element.done == true).length));
@@ -140,6 +148,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
 
   Future<void> _markTaskDone(
       TaskDoneEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Marking task done');
     try {
       if (state is TasksLoadedState) {
         logger.info('wer in task_bloc.dart, markTaskDone');
@@ -160,7 +169,7 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         );
         newTasks[event.index] = newTask;
         emit(TasksLoadedState(
-            isHidden: _sharedPreferences.getBool('doneHidden')!,
+            isHidden: await SharedPref.getCurrent(),
             loadedTasks: newTasks,
             doneTasks:
                 newTasks.where((element) => element.done == true).length));

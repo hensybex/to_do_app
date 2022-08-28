@@ -38,5 +38,3 @@ class TaskEditEvent extends TaskEvent {
 
   TaskEditEvent(this.task, this.index);
 }
-
-class HideDoneEvent extends TaskEvent {}

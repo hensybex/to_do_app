@@ -63,7 +63,6 @@ class _TaskCardState extends State<TaskCard> {
                 activeColor: lightGreen,
                 value: widget.task.done,
                 onChanged: (bool? value) {
-                  logger.info('am i here');
                   context
                       .read<TaskBloc>()
                       .add(TaskDoneEvent(widget.task, widget.index));

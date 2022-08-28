@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:to_do_app/data_processing/api_key.dart';
+import 'package:to_do_app/data_processing/shared_pref.dart';
 import 'package:to_do_app/theme/theme.dart';
 //import 'package:hive/hive.dart';
 
@@ -17,6 +19,7 @@ import 'dart:async';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:to_do_app/model/task.dart';
 import 'package:to_do_app/navigation/nav_cubit.dart';
+import 'package:appmetrica_plugin/appmetrica_plugin.dart';
 
 void main() {
   runZonedGuarded(() async {
@@ -25,9 +28,10 @@ void main() {
     await Hive.initFlutter();
     Hive.registerAdapter(TaskAdapter());
     await Hive.openBox<Task>('ToDos');
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('doneHidden', true);
+    await SharedPref.init();
     ErrorHandler.init();
+    AppMetrica.activate(const AppMetricaConfig(appMetricaKey));
+    AppMetrica.reportEvent('Start program');
     runApp(App());
     logger.info('End main');
   }, ErrorHandler.recordError);
@@ -51,14 +55,15 @@ class App extends StatelessWidget {
           BlocProvider(create: (context) => NavCubit()),
           BlocProvider(
             create: (context) => TaskBloc(
-                tasksRepository: context.read<TasksRepository>(),
-                hiveRepository: context.read<HiveRepository>(),
-                sharedPreferences: context.read<SharedPreferences>())
-              ..add(TaskGetListEvent()),
+              tasksRepository: context.read<TasksRepository>(),
+              hiveRepository: context.read<HiveRepository>(),
+            )..add(TaskGetListEvent()),
           ),
         ],
         child: MaterialApp(
-          theme: basicTheme(),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.system,
           home: AppNavigator(),
           localizationsDelegates: const [
             AppLocalizations.delegate,

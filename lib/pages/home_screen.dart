@@ -21,11 +21,6 @@ import '../widgets/task_list.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  //bool isChecked = false;
-  //late List<Task> _TasksList;
-  //late Future<Task> _TasksFuture;
-  //late Future<Album> futureAlbum;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
