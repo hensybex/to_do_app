@@ -44,6 +44,9 @@ dependencies:
 
   appmetrica_plugin: ^1.0.1
 
+  bloc_test: ^9.1.0
+
+
 
 dev_dependencies:
   linter: ^1.26.0

@@ -11,6 +11,7 @@ import '../model/task.dart';
 import 'package:uuid/uuid.dart';
 
 import '../navigation/nav_cubit.dart';
+import '../theme/constants.dart';
 import 'edit_cubit/edit_cubit.dart';
 
 class TaskScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class TaskScreen extends StatefulWidget {
 
 class TaskScreenState extends State<TaskScreen> {
   @override
+  var scrollOverflow = false;
   dynamic importanceValue = 'low';
   final items = ['low', 'basic', 'important'];
   bool _dateState = false;
@@ -79,156 +81,206 @@ class TaskScreenState extends State<TaskScreen> {
   @override
   Widget build(BuildContext context) {
     logger.info('Task Screen');
-    return WillPopScope(
-      onWillPop: () async {
-        logger.info("WILL POP SCOPE");
-        BlocProvider.of<NavCubit>(context).popHome();
-        return true;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            TextButton(
-              style: ButtonStyle(
-                alignment: Alignment.topRight,
-                padding: MaterialStateProperty.all<EdgeInsets>(
-                    EdgeInsets.only(top: 40)),
-              ),
-              onPressed: () {
-                submit(BlocProvider.of<TaskBloc>(context), context);
-              },
-              child: Container(
-                padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                child: Text(
-                  'СОХРАНИТЬ',
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        elevation: scrollOverflow ? 4 : 0,
+        backgroundColor: backLightPrimary,
+        actions: [
+          TextButton(
+            style: ButtonStyle(
+              alignment: Alignment.topRight,
+            ),
+            onPressed: () {
+              submit(BlocProvider.of<TaskBloc>(context), context);
+            },
+            child: Container(
+              padding: EdgeInsets.fromLTRB(0, 10, 6, 0),
+              child: Text(
+                'СОХРАНИТЬ',
+                style: Theme.of(context)
+                    .textTheme
+                    .button!
+                    .copyWith(color: lightBlue),
               ),
             ),
-          ],
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              BlocProvider.of<NavCubit>(context).popHome();
-            },
           ),
+        ],
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          color: labelLightPrimary,
+          onPressed: () {
+            BlocProvider.of<NavCubit>(context).popHome();
+          },
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Form(
-              //              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: TextField(
-                        style: TextStyle(fontSize: 20),
-                        minLines: 5,
-                        controller: _textController,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          hintText: 'Что надо сделать...',
+      ),
+      body: SafeArea(
+        child: NotificationListener<ScrollUpdateNotification>(
+          onNotification: (n) {
+            if (n.metrics.pixels > 40) {
+              setState(() {
+                scrollOverflow = true;
+              });
+            } else {
+              setState(() {
+                scrollOverflow = false;
+              });
+            }
+            return true;
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Form(
+                //              key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
+                        child: TextField(
+                          style: TextStyle(fontSize: 20),
+                          minLines: 5,
+                          controller: _textController,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            hintText: 'Что надо сделать...',
+                          ),
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
-                    child: Text('Важность',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
-                    child: DropdownButton(
-                        icon: Visibility(
-                            visible: false, child: Icon(Icons.arrow_downward)),
-                        value: importanceValue,
-                        items: items
-                            .map(
-                              (dynamic value) => DropdownMenuItem(
-                                value: value,
-                                child: Text(
-                                  value,
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
+                      child: Text('Важность',
+                          style: Theme.of(context).textTheme.bodyText2!),
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
+                      child: DropdownButton(
+                          icon: Visibility(
+                              visible: false,
+                              child: Icon(Icons.arrow_downward)),
+                          value: importanceValue,
+                          items: items
+                              .map(
+                                (dynamic value) => DropdownMenuItem(
+                                  value: value,
+                                  child: Text(
+                                    value,
+                                    style:
+                                        Theme.of(context).textTheme.subtitle2!,
+                                  ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (newMenu) {
-                          setState(() {
-                            importanceValue = newMenu;
-                          });
-                        }),
-                  ),
-                  Stack(
-                    children: [
-                      Positioned(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
-                              child: Text('Сделать до'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
-                              child: Opacity(
-                                opacity: _dateState ? 1 : 0,
-                                child: TextField(
-                                  controller: _dateTextController,
-                                  enabled: false,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: Switch(
-                          value: _dateState,
-                          onChanged: (bool state) {
-                            if (_dateState == false) {
-                              _selectDate(context);
-                            } else {
-                              _dateController.text = '';
-                            }
+                              )
+                              .toList(),
+                          onChanged: (newMenu) {
                             setState(() {
-                              _dateState = state;
+                              importanceValue = newMenu;
                             });
-                          },
+                          }),
+                    ),
+                    Stack(
+                      children: [
+                        Positioned(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.fromLTRB(15, 10, 10, 0),
+                                child: Text('Сделать до',
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2!),
+                              ),
+                              Container(
+                                padding: EdgeInsets.fromLTRB(15, 0, 10, 10),
+                                child: Opacity(
+                                  opacity: _dateState ? 1 : 0,
+                                  child: TextField(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2!
+                                        .copyWith(color: lightBlue),
+                                    controller: _dateTextController,
+                                    enabled: false,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      )
-                    ],
-                  ),
-                  isEditing == true
-                      ? IconButton(
-                          onPressed: () {
-                            delete(BlocProvider.of<TaskBloc>(context), context,
-                                widget.task!, widget.task!.hiveIndex!);
-                          },
-                          icon: Icon(Icons.repeat),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Switch(
+                            value: _dateState,
+                            onChanged: (bool state) {
+                              if (_dateState == false) {
+                                _selectDate(context);
+                              } else {
+                                _dateController.text = '';
+                              }
+                              setState(() {
+                                _dateState = state;
+                              });
+                            },
+                          ),
                         )
-                      : Opacity(opacity: 0.5, child: Icon(Icons.abc))
-                ],
+                      ],
+                    ),
+                    isEditing == true
+                        ? ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: backLightPrimary,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  color: lightRed,
+                                ),
+                                Text('Удалить',
+                                    style:
+                                        Theme.of(context).textTheme.bodyText2!)
+                              ],
+                            ),
+                            onPressed: () {
+                              delete(
+                                  BlocProvider.of<TaskBloc>(context),
+                                  context,
+                                  widget.task!,
+                                  widget.task!.hiveIndex!);
+                            },
+                          )
+                        : Opacity(
+                            opacity: 0.3,
+                            child: Row(children: [
+                              IconButton(
+                                alignment: Alignment.centerLeft,
+                                icon: Icon(Icons.delete),
+                                onPressed: () {},
+                              ),
+                              Text('Удалить',
+                                  style: Theme.of(context).textTheme.bodyText2!)
+                            ]))
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

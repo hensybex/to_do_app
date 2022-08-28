@@ -33,7 +33,7 @@ ThemeData light() {
       button: TextStyle(
         fontSize: 14,
         height: 24 / 14,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         color: labelLightPrimary,
       ),
       headline2: TextStyle(
