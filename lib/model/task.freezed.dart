@@ -38,6 +38,8 @@ mixin _$Task {
   int get changed_at => throw _privateConstructorUsedError;
   @HiveField(8)
   String get last_updated_by => throw _privateConstructorUsedError;
+  @HiveField(9)
+  int? get hiveIndex => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -57,7 +59,8 @@ abstract class $TaskCopyWith<$Res> {
       @HiveField(5) String? color,
       @HiveField(6) int created_at,
       @HiveField(7) int changed_at,
-      @HiveField(8) String last_updated_by});
+      @HiveField(8) String last_updated_by,
+      @HiveField(9) int? hiveIndex});
 }
 
 /// @nodoc
@@ -79,6 +82,7 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
     Object? created_at = freezed,
     Object? changed_at = freezed,
     Object? last_updated_by = freezed,
+    Object? hiveIndex = freezed,
   }) {
     return _then(_value.copyWith(
       id: id == freezed
@@ -117,6 +121,10 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _value.last_updated_by
           : last_updated_by // ignore: cast_nullable_to_non_nullable
               as String,
+      hiveIndex: hiveIndex == freezed
+          ? _value.hiveIndex
+          : hiveIndex // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -135,7 +143,8 @@ abstract class _$$_TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       @HiveField(5) String? color,
       @HiveField(6) int created_at,
       @HiveField(7) int changed_at,
-      @HiveField(8) String last_updated_by});
+      @HiveField(8) String last_updated_by,
+      @HiveField(9) int? hiveIndex});
 }
 
 /// @nodoc
@@ -158,6 +167,7 @@ class __$$_TaskCopyWithImpl<$Res> extends _$TaskCopyWithImpl<$Res>
     Object? created_at = freezed,
     Object? changed_at = freezed,
     Object? last_updated_by = freezed,
+    Object? hiveIndex = freezed,
   }) {
     return _then(_$_Task(
       id: id == freezed
@@ -196,6 +206,10 @@ class __$$_TaskCopyWithImpl<$Res> extends _$TaskCopyWithImpl<$Res>
           ? _value.last_updated_by
           : last_updated_by // ignore: cast_nullable_to_non_nullable
               as String,
+      hiveIndex: hiveIndex == freezed
+          ? _value.hiveIndex
+          : hiveIndex // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -212,7 +226,8 @@ class _$_Task implements _Task {
       @HiveField(5) this.color,
       @HiveField(6) required this.created_at,
       @HiveField(7) required this.changed_at,
-      @HiveField(8) required this.last_updated_by});
+      @HiveField(8) required this.last_updated_by,
+      @HiveField(9) this.hiveIndex});
 
   factory _$_Task.fromJson(Map<String, dynamic> json) => _$$_TaskFromJson(json);
 
@@ -243,10 +258,13 @@ class _$_Task implements _Task {
   @override
   @HiveField(8)
   final String last_updated_by;
+  @override
+  @HiveField(9)
+  final int? hiveIndex;
 
   @override
   String toString() {
-    return 'Task(id: $id, text: $text, importance: $importance, deadline: $deadline, done: $done, color: $color, created_at: $created_at, changed_at: $changed_at, last_updated_by: $last_updated_by)';
+    return 'Task(id: $id, text: $text, importance: $importance, deadline: $deadline, done: $done, color: $color, created_at: $created_at, changed_at: $changed_at, last_updated_by: $last_updated_by, hiveIndex: $hiveIndex)';
   }
 
   @override
@@ -266,7 +284,8 @@ class _$_Task implements _Task {
             const DeepCollectionEquality()
                 .equals(other.changed_at, changed_at) &&
             const DeepCollectionEquality()
-                .equals(other.last_updated_by, last_updated_by));
+                .equals(other.last_updated_by, last_updated_by) &&
+            const DeepCollectionEquality().equals(other.hiveIndex, hiveIndex));
   }
 
   @JsonKey(ignore: true)
@@ -281,7 +300,8 @@ class _$_Task implements _Task {
       const DeepCollectionEquality().hash(color),
       const DeepCollectionEquality().hash(created_at),
       const DeepCollectionEquality().hash(changed_at),
-      const DeepCollectionEquality().hash(last_updated_by));
+      const DeepCollectionEquality().hash(last_updated_by),
+      const DeepCollectionEquality().hash(hiveIndex));
 
   @JsonKey(ignore: true)
   @override
@@ -306,7 +326,8 @@ abstract class _Task implements Task {
       @HiveField(5) final String? color,
       @HiveField(6) required final int created_at,
       @HiveField(7) required final int changed_at,
-      @HiveField(8) required final String last_updated_by}) = _$_Task;
+      @HiveField(8) required final String last_updated_by,
+      @HiveField(9) final int? hiveIndex}) = _$_Task;
 
   factory _Task.fromJson(Map<String, dynamic> json) = _$_Task.fromJson;
 
@@ -337,6 +358,9 @@ abstract class _Task implements Task {
   @override
   @HiveField(8)
   String get last_updated_by;
+  @override
+  @HiveField(9)
+  int? get hiveIndex;
   @override
   @JsonKey(ignore: true)
   _$$_TaskCopyWith<_$_Task> get copyWith => throw _privateConstructorUsedError;

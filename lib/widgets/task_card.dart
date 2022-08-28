@@ -1,4 +1,4 @@
-import 'dart:ffi';
+//import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +10,7 @@ import '../bloc/task_event.dart';
 import '../logger.dart';
 import '../model/task.dart';
 import '../navigation/nav_cubit.dart';
+import '../theme/constants.dart';
 
 class TaskCard extends StatefulWidget {
   final Task task;
@@ -25,15 +26,17 @@ class _TaskCardState extends State<TaskCard> {
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
-    final TaskBloc taskBloc = context.read<TaskBloc>();
+    //final TaskBloc taskBloc = context.read<TaskBloc>();
     return Slidable(
       startActionPane:
           ActionPane(extentRatio: 0.2, motion: ScrollMotion(), children: [
         SlidableAction(
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.blue,
           icon: Icons.plus_one,
           onPressed: (context) {
-            taskBloc.add(TaskDoneEvent(widget.task, widget.index));
+            context
+                .read<TaskBloc>()
+                .add(TaskDoneEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -43,7 +46,9 @@ class _TaskCardState extends State<TaskCard> {
           backgroundColor: Colors.red,
           icon: Icons.delete,
           onPressed: (context) {
-            taskBloc.add(TaskDeleteEvent(widget.task, widget.index));
+            context
+                .read<TaskBloc>()
+                .add(TaskDeleteEvent(widget.task, widget.index));
           },
         ),
       ]),
@@ -52,18 +57,15 @@ class _TaskCardState extends State<TaskCard> {
           Flexible(
             flex: 1,
             child: Checkbox(
-                //overlayColor: MaterialStateProperty.all<Color>(Colors.red),
-                //focusColor: Colors.red,
                 side: (widget.task.importance == 'important')
-                    ? BorderSide(color: Colors.red)
-                    : BorderSide(),
-                //fillColor: MaterialStateProperty.all<Color>(Colors.red),
-                //checkColor: Colors.red,
-                activeColor: Colors.green,
+                    ? BorderSide(color: lightRed, width: 3.0)
+                    : BorderSide(color: supportLightSeparator, width: 3.0),
+                activeColor: lightGreen,
                 value: widget.task.done,
                 onChanged: (bool? value) {
-                  logger.info('am i here');
-                  taskBloc.add(TaskDoneEvent(widget.task, widget.index));
+                  context
+                      .read<TaskBloc>()
+                      .add(TaskDoneEvent(widget.task, widget.index));
                 }),
           ),
           Visibility(
@@ -72,32 +74,40 @@ class _TaskCardState extends State<TaskCard> {
           ),
           Flexible(
             flex: 8,
-            child: ListTile(
-              title: (widget.task.done == true)
-                  ? Text(
-                      widget.task.text,
-                      overflow: TextOverflow.clip,
-                      maxLines: 3,
-                      style: const TextStyle(
-                          decoration: TextDecoration.lineThrough),
-                    )
-                  : Text(
-                      widget.task.text,
-                      overflow: TextOverflow.clip,
-                      maxLines: 3,
-                    ),
-              subtitle: (widget.task.deadline != null)
-                  ? (Text(
-                      DateTime.fromMillisecondsSinceEpoch(widget.task.deadline!)
-                          .toString()))
-                  : (const SizedBox.shrink()),
+            child: Container(
+              height: (widget.task.deadline != null) ? 72.0 : 48.0,
+              child: ListTile(
+                title: (widget.task.done == true)
+                    ? Text(
+                        widget.task.text,
+                        overflow: TextOverflow.clip,
+                        maxLines: 3,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText2!
+                            .copyWith(decoration: TextDecoration.lineThrough),
+                      )
+                    : Text(
+                        widget.task.text,
+                        overflow: TextOverflow.clip,
+                        maxLines: 3,
+                        style: Theme.of(context).textTheme.bodyText2!,
+                      ),
+                subtitle: (widget.task.deadline != null)
+                    ? (Text(DateTime.fromMillisecondsSinceEpoch(
+                            widget.task.deadline!)
+                        .toString()))
+                    : (const SizedBox.shrink()),
+              ),
             ),
           ),
           Flexible(
             flex: 1,
             child: IconButton(
+              color: labelLightTertiary,
               onPressed: () {
-                BlocProvider.of<NavCubit>(context).editTask(widget.task);
+                BlocProvider.of<NavCubit>(context)
+                    .editTask(widget.task.copyWith(hiveIndex: widget.index));
               },
               icon: Icon(Icons.info_outline),
             ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
-import 'package:to_do_app/network/tasks_repositoty.dart';
+import 'package:to_do_app/data_processing/tasks_repositoty.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_event.dart';
 import '../bloc/tasks_state.dart';
@@ -57,21 +57,37 @@ class TaskScreenState extends State<TaskScreen> {
   }
 
   @override
+  void initState() {
+    if (widget.task != null) {
+      setState(() {
+        isEditing = true;
+        importanceValue = widget.task!.importance;
+        _textController.text = widget.task!.text;
+        if (widget.task!.deadline != null) {
+          selectedDate =
+              DateTime.fromMillisecondsSinceEpoch(widget.task!.deadline!);
+          _dateController.text = selectedDate.millisecondsSinceEpoch.toString();
+          _dateTextController.text =
+              DateFormat.yMMMd('ru').format(selectedDate).toString();
+          _dateState = true;
+        }
+      });
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     logger.info('Task Screen');
-    widget.task != null
-        ? {
-            logger.info(widget.task!.text),
-            isEditing = true,
-            logger.info("Set isEditing to true")
-          }
-        : logger.info('No task');
-    return BlocProvider<EditCubit>(
-      create: (context) => EditCubit(),
+    return WillPopScope(
+      onWillPop: () async {
+        logger.info("WILL POP SCOPE");
+        BlocProvider.of<NavCubit>(context).popHome();
+        return true;
+      },
       child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+        appBar: AppBar(
+          actions: [
             TextButton(
               style: ButtonStyle(
                 alignment: Alignment.topRight,
@@ -88,8 +104,19 @@ class TaskScreenState extends State<TaskScreen> {
                 ),
               ),
             ),
+          ],
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () {
+              BlocProvider.of<NavCubit>(context).popHome();
+            },
+          ),
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Form(
-//              key: _formKey,
+              //              key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -178,6 +205,8 @@ class TaskScreenState extends State<TaskScreen> {
                           onChanged: (bool state) {
                             if (_dateState == false) {
                               _selectDate(context);
+                            } else {
+                              _dateController.text = '';
                             }
                             setState(() {
                               _dateState = state;
@@ -187,6 +216,15 @@ class TaskScreenState extends State<TaskScreen> {
                       )
                     ],
                   ),
+                  isEditing == true
+                      ? IconButton(
+                          onPressed: () {
+                            delete(BlocProvider.of<TaskBloc>(context), context,
+                                widget.task!, widget.task!.hiveIndex!);
+                          },
+                          icon: Icon(Icons.repeat),
+                        )
+                      : Opacity(opacity: 0.5, child: Icon(Icons.abc))
                 ],
               ),
             ),
@@ -196,21 +234,43 @@ class TaskScreenState extends State<TaskScreen> {
     );
   }
 
+  void delete(TaskBloc taskBloc, context, Task task, int index) async {
+    taskBloc.add(TaskDeleteEvent(task, index));
+    //taskBloc.add(TaskGetListEvent());
+    BlocProvider.of<NavCubit>(context).popHome();
+  }
+
   void submit(TaskBloc taskBloc, context) {
-    logger.info(_dateController.text);
-    logger.info("HELLO");
-    Task task = Task(
-      id: const Uuid().v1(),
-      text: _textController.text,
-      importance: importanceValue,
-      done: false,
-      created_at: DateTime.now().millisecondsSinceEpoch,
-      changed_at: DateTime.now().millisecondsSinceEpoch,
-      last_updated_by: '1',
-      deadline:
-          (_dateController.text != '') ? int.parse(_dateController.text) : null,
-    );
-    taskBloc.add(TaskPostEvent(task));
+    if (widget.task != null) {
+      Task task = Task(
+        id: widget.task!.id,
+        text: _textController.text,
+        importance: importanceValue,
+        done: widget.task!.done,
+        created_at: widget.task!.created_at,
+        changed_at: DateTime.now().millisecondsSinceEpoch,
+        last_updated_by: '1',
+        deadline: (_dateController.text != '')
+            ? int.parse(_dateController.text)
+            : null,
+      );
+      logger.info(_dateController.text);
+      taskBloc.add(TaskEditEvent(task, widget.task!.hiveIndex!));
+    } else {
+      Task task = Task(
+        id: const Uuid().v1(),
+        text: _textController.text,
+        importance: importanceValue,
+        done: false,
+        created_at: DateTime.now().millisecondsSinceEpoch,
+        changed_at: DateTime.now().millisecondsSinceEpoch,
+        last_updated_by: '1',
+        deadline: (_dateController.text != '')
+            ? int.parse(_dateController.text)
+            : null,
+      );
+      taskBloc.add(TaskPostEvent(task));
+    }
     BlocProvider.of<NavCubit>(context).popHome();
   }
 }

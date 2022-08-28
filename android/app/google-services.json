@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "858603106629",
+    "project_id": "todoyacademy",
+    "storage_bucket": "todoyacademy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:858603106629:android:8c55954f390169385f0e2c",
+        "android_client_info": {
+          "package_name": "com.example.to_do_app_y_academy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "858603106629-jpg9auunmivdr51d2fd68ajdbja1iqki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGT_wZYaemfRD0qKwqZv2wQhCD6EFBbSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "858603106629-jpg9auunmivdr51d2fd68ajdbja1iqki.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -26,13 +26,14 @@ class TaskAdapter extends TypeAdapter<Task> {
       created_at: fields[6] as int,
       changed_at: fields[7] as int,
       last_updated_by: fields[8] as String,
+      hiveIndex: fields[9] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Task obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class TaskAdapter extends TypeAdapter<Task> {
       ..writeByte(7)
       ..write(obj.changed_at)
       ..writeByte(8)
-      ..write(obj.last_updated_by);
+      ..write(obj.last_updated_by)
+      ..writeByte(9)
+      ..write(obj.hiveIndex);
   }
 
   @override
@@ -78,6 +81,7 @@ _$_Task _$$_TaskFromJson(Map<String, dynamic> json) => _$_Task(
       created_at: json['created_at'] as int,
       changed_at: json['changed_at'] as int,
       last_updated_by: json['last_updated_by'] as String,
+      hiveIndex: json['hiveIndex'] as int?,
     );
 
 Map<String, dynamic> _$$_TaskToJson(_$_Task instance) => <String, dynamic>{
@@ -90,4 +94,5 @@ Map<String, dynamic> _$$_TaskToJson(_$_Task instance) => <String, dynamic>{
       'created_at': instance.created_at,
       'changed_at': instance.changed_at,
       'last_updated_by': instance.last_updated_by,
+      'hiveIndex': instance.hiveIndex,
     };

@@ -1,4 +1,4 @@
-import 'package:to_do_app/network/task_provider.dart';
+import 'package:to_do_app/data_processing/task_provider.dart';
 
 import '../logger.dart';
 import '../model/task.dart';
