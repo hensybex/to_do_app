@@ -26,7 +26,7 @@ jobs:
           flutter-version: '3.0.5'
           channel: 'stable'
       - run: flutter pub get
-      - run: flutter build apk lib/main_prod.dart --release
+      - run: flutter build apk lib/main.dart --release
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
