@@ -24,9 +24,19 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
     on<TaskEditEvent>(_editTask);
     on<TaskPostEvent>(_postTask);
     on<TaskDeleteEvent>(_deleteTask);
+    on<FilterEvent>(_filterTasks);
   }
   final TasksRepository _tasksRepository;
   final HiveRepository _hiveRepository;
+
+  Future<List<dynamic>> _filterTasks(
+      FilterEvent event, Emitter<TasksState> emit) async {
+    AppMetrica.reportEvent('Filtering tasks');
+    List<dynamic> loadedTasksList = await _hiveRepository.getListTasks();
+    List<dynamic> newTasks =
+        loadedTasksList.where((element) => element.done != true).toList();
+    return newTasks;
+  }
 
   Future<List<dynamic>> _getListTask(
       TaskGetListEvent event, Emitter<TasksState> emit) async {
@@ -67,7 +77,8 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         }
       }
     } catch (e) {
-      emit(TasksErrorState());
+      final List<dynamic> tasks = await _hiveRepository.getListTasks();
+      emit(TasksErrorState(error: e.toString(), tasks: tasks));
     }
   }
 
@@ -101,8 +112,8 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         }
       }
     } catch (e) {
-      logger.info(e);
-      emit(TasksErrorState());
+      final List<dynamic> tasks = await _hiveRepository.getListTasks();
+      emit(TasksErrorState(error: e.toString(), tasks: tasks));
     }
     //var box = Hive.box<Task>('ToDos');
     //box.deleteAt(event.index);
@@ -142,7 +153,8 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         }
       }
     } catch (e) {
-      emit(TasksErrorState());
+      final List<dynamic> tasks = await _hiveRepository.getListTasks();
+      emit(TasksErrorState(error: e.toString(), tasks: tasks));
     }
   }
 
@@ -180,8 +192,8 @@ class TaskBloc extends Bloc<TaskEvent, TasksState> {
         }
       }
     } catch (e) {
-      logger.info(e);
-      emit(TasksErrorState());
+      final List<dynamic> tasks = await _hiveRepository.getListTasks();
+      emit(TasksErrorState(error: e.toString(), tasks: tasks));
     }
   }
 }

@@ -38,3 +38,8 @@ class TaskEditEvent extends TaskEvent {
 
   TaskEditEvent(this.task, this.index);
 }
+
+class FilterEvent extends TaskEvent {
+  List<dynamic> tasks;
+  FilterEvent(this.tasks);
+}
